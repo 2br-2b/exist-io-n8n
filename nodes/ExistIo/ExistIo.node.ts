@@ -102,31 +102,116 @@ export class ExistIo implements INodeType {
 						name: 'Get Many',
 						value: 'getMany',
 						action: 'List attributes',
-						routing: { request: { method: 'GET', url: '/attributes/' } },
+						routing: {
+							request: { method: 'GET', url: '/attributes/' },
+							send: { paginate: '={{ $parameter["returnAll"] }}' },
+							operations: {
+								pagination: {
+									type: 'generic',
+									properties: {
+										continue: '={{ $response.body?.next != null }}',
+										request: { url: '={{ $response.body.next }}' },
+									},
+								},
+							},
+							output: {
+								postReceive: [
+									{ type: 'rootProperty', properties: { property: 'results' } },
+								],
+							},
+						},
 					},
 					{
 						name: 'Get Owned',
 						value: 'getOwned',
 						action: 'List attributes owned by this client',
-						routing: { request: { method: 'GET', url: '/attributes/owned/' } },
+						routing: {
+							request: { method: 'GET', url: '/attributes/owned/' },
+							send: { paginate: '={{ $parameter["returnAll"] }}' },
+							operations: {
+								pagination: {
+									type: 'generic',
+									properties: {
+										continue: '={{ $response.body?.next != null }}',
+										request: { url: '={{ $response.body.next }}' },
+									},
+								},
+							},
+							output: {
+								postReceive: [
+									{ type: 'rootProperty', properties: { property: 'results' } },
+								],
+							},
+						},
 					},
 					{
 						name: 'Get Templates',
 						value: 'getTemplates',
 						action: 'List supported attribute templates',
-						routing: { request: { method: 'GET', url: '/attributes/templates/' } },
+						routing: {
+							request: { method: 'GET', url: '/attributes/templates/' },
+							send: { paginate: '={{ $parameter["returnAll"] }}' },
+							operations: {
+								pagination: {
+									type: 'generic',
+									properties: {
+										continue: '={{ $response.body?.next != null }}',
+										request: { url: '={{ $response.body.next }}' },
+									},
+								},
+							},
+							output: {
+								postReceive: [
+									{ type: 'rootProperty', properties: { property: 'results' } },
+								],
+							},
+						},
 					},
 					{
 						name: 'Get Values',
 						value: 'getValues',
 						action: 'Get values for a single attribute',
-						routing: { request: { method: 'GET', url: '/attributes/values/' } },
+						routing: {
+							request: { method: 'GET', url: '/attributes/values/' },
+							send: { paginate: '={{ $parameter["returnAll"] }}' },
+							operations: {
+								pagination: {
+									type: 'generic',
+									properties: {
+										continue: '={{ $response.body?.next != null }}',
+										request: { url: '={{ $response.body.next }}' },
+									},
+								},
+							},
+							output: {
+								postReceive: [
+									{ type: 'rootProperty', properties: { property: 'results' } },
+								],
+							},
+						},
 					},
 					{
 						name: 'Get With Values',
 						value: 'getWithValues',
 						action: 'List attributes with recent values',
-						routing: { request: { method: 'GET', url: '/attributes/with-values/' } },
+						routing: {
+							request: { method: 'GET', url: '/attributes/with-values/' },
+							send: { paginate: '={{ $parameter["returnAll"] }}' },
+							operations: {
+								pagination: {
+									type: 'generic',
+									properties: {
+										continue: '={{ $response.body?.next != null }}',
+										request: { url: '={{ $response.body.next }}' },
+									},
+								},
+							},
+							output: {
+								postReceive: [
+									{ type: 'rootProperty', properties: { property: 'results' } },
+								],
+							},
+						},
 					},
 					{
 						name: 'Increment',
@@ -160,6 +245,21 @@ export class ExistIo implements INodeType {
 				description: 'Name of the attribute to fetch values for (e.g. "steps")',
 				displayOptions: { show: { resource: ['attribute'], operation: ['getValues'] } },
 				routing: { request: { qs: { attribute: '={{$value}}' } } },
+			},
+
+			// Return All toggle for attribute list ops
+			{
+				displayName: 'Return All',
+				name: 'returnAll',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to return all results or only up to a given limit',
+				displayOptions: {
+					show: {
+						resource: ['attribute'],
+						operation: ['getMany', 'getWithValues', 'getValues', 'getTemplates', 'getOwned'],
+					},
+				},
 			},
 
 			// Filters for GET list ops
@@ -270,6 +370,7 @@ export class ExistIo implements INodeType {
 						description: 'Max number of results to return',
 						typeOptions: { minValue: 1, maxValue: 100 },
 						default: 50,
+						displayOptions: { hide: { '/returnAll': [true] } },
 						routing: { request: { qs: { limit: '={{$value}}' } } },
 					},
 					{
@@ -297,7 +398,8 @@ export class ExistIo implements INodeType {
 						name: 'page',
 						type: 'number',
 						default: 1,
-						description: 'Page number to return',
+						description: 'Page number to return (ignored when Return All is enabled)',
+						displayOptions: { hide: { '/returnAll': [true] } },
 						routing: { request: { qs: { page: '={{$value}}' } } },
 					},
 					{
@@ -580,10 +682,35 @@ export class ExistIo implements INodeType {
 						name: 'Get Many',
 						value: 'getMany',
 						action: 'List insights',
-						routing: { request: { method: 'GET', url: '/insights/' } },
+						routing: {
+							request: { method: 'GET', url: '/insights/' },
+							send: { paginate: '={{ $parameter["returnAll"] }}' },
+							operations: {
+								pagination: {
+									type: 'generic',
+									properties: {
+										continue: '={{ $response.body?.next != null }}',
+										request: { url: '={{ $response.body.next }}' },
+									},
+								},
+							},
+							output: {
+								postReceive: [
+									{ type: 'rootProperty', properties: { property: 'results' } },
+								],
+							},
+						},
 					},
 				],
 				default: 'getMany',
+			},
+			{
+				displayName: 'Return All',
+				name: 'returnAll',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to return all results or only up to a given limit',
+				displayOptions: { show: { resource: ['insight'], operation: ['getMany'] } },
 			},
 			{
 				displayName: 'Filters',
@@ -618,6 +745,7 @@ export class ExistIo implements INodeType {
 						description: 'Max number of results to return',
 						typeOptions: { minValue: 1, maxValue: 100 },
 						default: 50,
+						displayOptions: { hide: { '/returnAll': [true] } },
 						routing: { request: { qs: { limit: '={{$value}}' } } },
 					},
 					{
@@ -625,7 +753,8 @@ export class ExistIo implements INodeType {
 						name: 'page',
 						type: 'number',
 						default: 1,
-						description: 'Page number to return',
+						description: 'Page number to return (ignored when Return All is enabled)',
+						displayOptions: { hide: { '/returnAll': [true] } },
 						routing: { request: { qs: { page: '={{$value}}' } } },
 					},
 					{
@@ -657,10 +786,35 @@ export class ExistIo implements INodeType {
 						name: 'Get Many',
 						value: 'getMany',
 						action: 'List averages',
-						routing: { request: { method: 'GET', url: '/averages/' } },
+						routing: {
+							request: { method: 'GET', url: '/averages/' },
+							send: { paginate: '={{ $parameter["returnAll"] }}' },
+							operations: {
+								pagination: {
+									type: 'generic',
+									properties: {
+										continue: '={{ $response.body?.next != null }}',
+										request: { url: '={{ $response.body.next }}' },
+									},
+								},
+							},
+							output: {
+								postReceive: [
+									{ type: 'rootProperty', properties: { property: 'results' } },
+								],
+							},
+						},
 					},
 				],
 				default: 'getMany',
+			},
+			{
+				displayName: 'Return All',
+				name: 'returnAll',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to return all results or only up to a given limit',
+				displayOptions: { show: { resource: ['average'], operation: ['getMany'] } },
 			},
 			{
 				displayName: 'Filters',
@@ -719,6 +873,7 @@ export class ExistIo implements INodeType {
 						description: 'Max number of results to return',
 						typeOptions: { minValue: 1, maxValue: 100 },
 						default: 50,
+						displayOptions: { hide: { '/returnAll': [true] } },
 						routing: { request: { qs: { limit: '={{$value}}' } } },
 					},
 					{
@@ -726,7 +881,8 @@ export class ExistIo implements INodeType {
 						name: 'page',
 						type: 'number',
 						default: 1,
-						description: 'Page number to return',
+						description: 'Page number to return (ignored when Return All is enabled)',
+						displayOptions: { hide: { '/returnAll': [true] } },
 						routing: { request: { qs: { page: '={{$value}}' } } },
 					},
 				],
@@ -744,7 +900,24 @@ export class ExistIo implements INodeType {
 						name: 'Get Many',
 						value: 'getMany',
 						action: 'List correlations',
-						routing: { request: { method: 'GET', url: '/correlations/' } },
+						routing: {
+							request: { method: 'GET', url: '/correlations/' },
+							send: { paginate: '={{ $parameter["returnAll"] }}' },
+							operations: {
+								pagination: {
+									type: 'generic',
+									properties: {
+										continue: '={{ $response.body?.next != null }}',
+										request: { url: '={{ $response.body.next }}' },
+									},
+								},
+							},
+							output: {
+								postReceive: [
+									{ type: 'rootProperty', properties: { property: 'results' } },
+								],
+							},
+						},
 					},
 					{
 						name: 'Get Combo',
@@ -754,6 +927,14 @@ export class ExistIo implements INodeType {
 					},
 				],
 				default: 'getMany',
+			},
+			{
+				displayName: 'Return All',
+				name: 'returnAll',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to return all results or only up to a given limit',
+				displayOptions: { show: { resource: ['correlation'], operation: ['getMany'] } },
 			},
 			{
 				displayName: 'Attribute',
@@ -804,6 +985,7 @@ export class ExistIo implements INodeType {
 						description: 'Max number of results to return',
 						typeOptions: { minValue: 1, maxValue: 100 },
 						default: 50,
+						displayOptions: { hide: { '/returnAll': [true] } },
 						routing: { request: { qs: { limit: '={{$value}}' } } },
 					},
 					{
@@ -811,7 +993,8 @@ export class ExistIo implements INodeType {
 						name: 'page',
 						type: 'number',
 						default: 1,
-						description: 'Page number to return',
+						description: 'Page number to return (ignored when Return All is enabled)',
+						displayOptions: { hide: { '/returnAll': [true] } },
 						routing: { request: { qs: { page: '={{$value}}' } } },
 					},
 					{

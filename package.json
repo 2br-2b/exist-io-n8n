@@ -12,12 +12,11 @@
 		"personal-analytics"
 	],
 	"author": {
-		"name": "John Wuller",
-		"email": "johnwuller@codegito.xyz"
+		"name": "John Wuller"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/johnwuller/n8n-nodes-exist-io.git"
+		"url": "git+https://github.com/2br-2b/exist-io-n8n.git"
 	},
 	"scripts": {
 		"build": "n8n-node build",
